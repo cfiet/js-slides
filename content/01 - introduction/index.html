@@ -1,0 +1,1041 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <title>How I stopped worring and loved JavaScript (a.k.a ECMAScript)</title>
+
+    <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+    <meta name="author" content="Hakim El Hattab">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <script src="lib/js/head.min.js"></script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      aside.notes {
+        font-size: 8pt;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <script src="js/reveal.min.js"></script>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+
+        <section>
+          <h1>Re-introduction to JavaScript</h1>
+          <h3>
+            <a href="http://en.wikipedia.org/wiki/Dr._Strangelove">How I stopped worrying and loved JavaScript</a>
+          </h3>
+          <h5 class="fragment">
+            Although, it might just be a Stockholm Syndrome
+          </h5>
+
+          <small>
+            Created by <a href="mailto://cfiet@cfiet.net">Maciej Makowski</a> / <a href="https://github.com/cfiet">cfiet @ github</a>
+          </small>
+
+          <aside class="notes">
+            <small>
+              I used to be a hardcore backend developer like most of you are, believing that no code is good
+              without at least 10 design pattetns applied and generics in type hierarchy.<br /><br />
+
+              I used to place JS somewhere between mauled by a bear and being hit by a car<br /><br />
+
+              One year ago I got a proposition to handle Frontend-side of MF11, followed by pretty quick decision to
+              migrate Frontend from MVC to JavaScript app.<br /><br />
+
+              First: depression, anger... After a year, I must say, I love JavaScript <code>SPACE</code>
+            </small>
+          </aside>
+        </section>
+
+        <section data-state="deal-with-it">
+          <script>
+            Reveal.addEventListener("deal-with-it", function () {
+              var image = document.getElementById("dwi-image");
+              image.src = "img/deal_with_it.gif";
+            });
+          </script>
+
+
+          <h2>Why should you care?</h2>
+          <h3>JavaScript is not going anywhere</h3>
+
+          <img id="dwi-image" alt="Deal with it!" src="" />
+
+          <p class="fragment">
+            You don't have to love it, but you'd better learn it!
+          </p>
+
+          <aside class="notes">
+            <ul>
+              <li>Upcoming series of presentations</li>
+              <li>This one is more about JavaScript in general</li>
+              <li>Later will focuse more on how we apply it</li>
+              <li><code>SPACE</code> - you'd better learn it!
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>What's are you talking about?!</h2>
+          <p>
+            <ul>
+              <li class="fragment">How does it work?</lo>
+              <li class="fragment">
+                I don't like JavaScript because...<br />
+                <small>And how to work around it</small>
+              </li>
+              <li class="fragment">Meanwhile in the HTML5 world</li>
+            </ul>
+          </p>
+
+          <aside class="notes">
+            This is what we're gonna talk about:
+            <ul>
+             <li>
+                <code>SPACE</code> - what is going on "under the hood" that is unfamilliar
+              </li>
+              <li>
+                <code>SPACE</code> - then I gonna present some common complaints you might have,
+                along with solutions for them
+              </li>
+              <li>
+                <code>SPACE</code> - then, if I have some time left, I'm gonna show you some cool
+                stuff that is currently going on in JS world
+              </li>
+            </ul>
+          </aside>
+        </section>
+
+        <section>
+          <h2>Under the hood</h2>
+          <ul>
+            <li class="fragment">
+              Event-based execution model<br />
+              <small>Made for single threader, asynchronous execution</small>
+            </li>
+            <li class="fragment">
+              Two, parallel type-systems<br />
+              <small><code>typeof</code> vs <code>instanceof</code></small>
+            </li>
+            <li class="fragment">Magic, unicorns, rainbows and candies</li>
+          </ul>
+        </section>
+
+        <section>
+          <section>
+            <h2>Under the hood</h2>
+            <h3>Event-based execution model</h3>
+            <ul>
+              <li class="fragment">Everything in browser executes as enqueued event</li>
+              <li class="fragment">Each event execution blocks the browser</li>
+            </ul>
+
+            <aside class="notes">
+              <ul>
+                <li>Stop for a moment, discuss how most of our application works</li>
+                <li>CPU-intensive vs IO-intensive</li>
+                <li>Where does it place us</li>
+                <li>Node JS showed that event-based model is perfect for the IO-intensive applications</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <pre><code class="c#" data-trim contenteditable>
+while (!this.IsTerminating) {
+  var currentEvent = Events.GetNextEvent();
+  try
+  {
+    currentEvent.Execute();
+  }
+  catch(Exception e)
+  {
+    Log(e);
+  }
+  this.SleepUntilNextEvent();
+}
+            </code></pre>
+
+            <aside class="notes">
+              Simple pseudocode for Event System<br />
+              Event can be generated inside other events or can come from system interacting with external resources (files, sockets, DB)
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Error isolation</h4>
+            <pre><code class="html" data-trim contenteditable>
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;script&gt;
+      window.scripts = [];
+      window.scripts.push("First!");
+    &lt;/script&gt;
+    &lt;script&gt;
+      throw new Error("I don't want to live on this planet anymore!");
+      window.scripts.push("Second!");
+    &lt;/script&gt;
+    &lt;script&gt;
+      window.scripts.push("Third!");
+    &lt;/script&gt;
+  &lt;/head&gt;
+&lt;/html&gt;
+&lt;!-- At this point, window.scripts is: ["First!", "Third!"] --&gt;
+            </code></pre>
+
+            <aside class="notes">
+              Unhandled errors terminate only the current event. The do not in any way affect other events. <br />
+
+              Except if other code depens on the code defined in the event that failed.<br />
+
+              Always go through events from top to bottom, usually the first error is the most significant one.
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <pre><code class="html" data-trim contenteditable>
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;script&gt;
+      setInterval(function () {
+        throw new Error("Console flooooooooooooooooood!");
+      }, 100);
+    &lt;/script&gt;
+  &lt;/head&gt;
+&lt;/html&gt;
+&lt;!-- Every 100ms new event will be generated and immediatly fail --&gt;
+            </code></pre>
+
+            <aside class="notes">
+              Due to the event separation it is possible to generate thousands of errors.
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Blocking, single threded</h4>
+            <pre><code class="html" data-trim contenteditable>
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;script&gt;
+      while(true) {
+        // this kills the browser!
+      }
+      // page will never acutally exit this script
+    &lt;/script&gt;
+  &lt;/head&gt;
+&lt;/html&gt;
+            </code></pre>
+
+            <aside class="notes">
+              Single-thread execution doesn't go well for CPU intensive tasks.
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Defer attribute</h4>
+            <pre><code class="html" data-trim contenteditable>
+&lt;html&gt;
+  &lt;head&gt;
+    &lt;script src=&quot;printFirst.js&quot; defer&gt;&lt;/script&gt;
+    &lt;script src=&quot;printSecond.js&quot;&gt;&lt;/script&gt;
+  &lt;/head&gt;
+&lt;/html&gt;
+&lt;!-- Console output:
+  &gt;&gt; Second!
+  &gt;&gt; First!
+--&gt;
+            </code></pre>
+
+            <aside class="notes">
+              Script interpretation can be moved for after the DOM was loaded.<br />
+
+              This works only for external scripts, browser starts the downloading immediatly, but waits with
+              actual execution of the script.
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>What is asynchronous</h4>
+            <ul>
+              <li class="fragment"><a href="http://en.wikipedia.org/wiki/DOM_events">DOM events</a> in browser</li>
+              <li class="fragment">
+                External requests in browser</br>
+                <small><ul>
+                  <li><code>Image.onload</code></li>
+                  <li>AJAX requests</li>
+                </ul></small>
+              </li>
+              <li class="fragment">
+                All the IO operations in NodeJS<br />
+              </li>
+              <li class="fragment">
+                Any code you want, just use <br />
+                <small><ul>
+                  <li><code>setTimeout</code></li>
+                  <li><code>setInterval</code></li>
+                  <li><code>process.nextTick</code></li>
+                </ul></small>
+              </li>
+            </ul>
+
+            <aside class="notes">
+              <ul>
+                <li>All your beloved UI events, DOM load events, DOM mutation events</li>
+                <li>Code is deferred until the request is finished</li>
+                <li>Opening files, listening on sockets, you name it!</li>
+                <li>Design your API to utlize this as much as it can</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Good practices</h4>
+            <ul>
+              <li class="fragment">Lay your pages, so all the scripts can be moved right before <code>&lt;/html&gt;</code> tag</li>
+              <li class="fragment">
+                Use only asynchronous handlers<br />
+                <small>Say no-no to synchronous AJAX requests</small>
+              </li>
+              <li class="fragment">
+                Don't do too much in single event<br />
+                <small>Divide and conquer large work-sets, spanning them across multiple events</small>
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Flow control</h4>
+            Due to the asynchronous nature, JavaScript code utilizes <a href="http://en.wikipedia.org/wiki/Continuation-passing_style">continuation-passig style</a>
+            (a.k.a. callbacks) to control the flow of the program.
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>CPS example in JavaScript (NodeJS)</h4>
+            <pre><code class="javascript" data-trim contenteditable>
+var fs = require("fs");
+fs.open("./why-not-zoidberg.txt", "r", function onOpen(err, fd) {
+  if(err) {
+    console.err("I'm sucha a failure!");
+    return;
+  }
+
+  fs.fstat(fd, function onFStat(err, stats) {
+    if(err) {
+      console.err("Why this keeps happening to me?!");
+      console.log("File has " + stats.size + " bytes";
+  }
+});
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>But you can CPS in C# as well!</h4>
+            <pre><code class="c#" data-trim contenteditable>
+while(HasTcpStream())
+{
+  using(var stream = GetNextTcpStream()) {
+    var buffer = new byte[4096];
+    stream.BeginRead(buffer, 0, buffer.Length, async =&gt;
+        {
+          int threadId
+          var value = stream.EndRead(async);
+          System.Out.WriteLine("Read {0} bytes", value);
+          // proces received bytes
+        }
+      );
+  }
+}
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>JavaScript CPS tips, bewares and downsides</h4>
+            <ul>
+              <li class="fragment">
+                Follow some convention
+                <small><ul>
+                  <li>
+                    jQuery: two callback params: <br />
+                    <code>onsucceess, onerror</code>
+                  </li>
+                  <li>
+                    NodeJS: first argument is error:<br />
+                    <code>function(error, value, /*... other values */) { ... }</code>
+                  </li>
+                </ul></small>
+              </li>
+              <li class="fragment">For more control, use NodeJS <code>async</code> module or <code>promises</code></li>
+              <li class="fragment"><a href="http://callbackhell.com/">Callback hell</a>
+              <li class="fragment">Memory leaks</li>
+              <li class="fragment">Unfamilliar flow control</li>
+              <li class="fragment">
+                Harder to debug<br />
+                <small>No stacktrace, we lose information on how did we got here</small>
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Promises (a.k.a. futures, defers or delays)</h4>
+            <pre><code class="javascript" data-trim contenteditable>function loadIt() {
+  var promise = $.ajax("http://www.youtube.com/watch?v=oHg5SJYRHA0", {
+    async: true
+  });
+
+  promise.done(function (data) {
+    console.log("Downloaded " + data.length + " bytes");
+  });
+
+  promise.fail(function (data) {
+    console.error("It's a TRAP!");
+  });
+
+  return promise;
+}
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>Event-based execution model</h3>
+            <h4>Promises are fun</h4>
+            <pre><code class="javascript" data-trim contenteditable>
+showLoading();
+$.ajax(uri)
+  .always(hideLoading)
+  .then(
+    function onSuccess(text) { return JSON.parse(text); },
+    function onFailure(xhr) { return getErrorFor(xhr.status); }
+  ).done( function(o) {
+    console.log("Object id: ", o.id);
+  }).fail( function(errorObj) {
+    console.error(errorObj.message);
+  });
+            </code></pre>
+            <small>
+              <ul>
+                <li class="fragment"><a href="http://api.jquery.com/category/deferred-object/">More on deferred objects</a></li>
+                <li class="fragment"><a href="http://msdn.microsoft.com/en-us/library/vstudio/hh191443.aspx">C# 4.5 includes simillar paradigm</a></li>
+              </ul>
+            </small>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Under the hood</h2>
+            <h3>Dual type system</h3>
+            <ul>
+              <li class="fragment">Interpreter types</li>
+              <li class="fragment">Object types</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>Dual type system</h3>
+            <h4>Interpreter types</h4>
+            <ul>
+              <li class="fragment">
+                Accessed using <code>typeof</code> <br />
+                <small>undefined, object, boolean, number, string, function, xml</small>
+              </li>
+              <li class="fragment">Fixed in ECMAScript standard</li>
+              <li class="fragment">
+                Nice WTF
+                <pre><code class="javascript" data-trim contenteditable>typeof null
+// object
+                </code></pre>
+              </li>
+            </ul>
+
+            <aside class="notes">
+              <ul>
+                <li>Btw, number is IEEE754 64-bit floating point number, no integers for you!</li>
+              </ul>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Dual type system</h3>
+            <h4>Object types</h4>
+            <ul>
+              <li class="fragment">Accessed using <code>instanceof</code> and <code>Object.constructor</code>
+              <li class="fragment">
+                You're free to define your own, just invoke constructor function with <code>new</code>
+                <pre><code class="javascript" data-trim contenteditable>function DeeDee() {
+  this.say = function () { 
+    console.log("What does this button do?");
+  }
+}
+var sister = new DeeDee();
+
+sister.constructor === DeeDee;
+// true
+sister instanceof DeeDee;
+// true
+sister instanceof Object;
+// true
+sister instanceof Array;
+// false
+                </code></pre>
+              </li>
+          </section>
+
+          <section>
+            <h3>Dual type system</h3>
+            <h4>Object types - prototype I</h4>
+                <pre><code class="javascript" data-trim contenteditable>function MadScientist() {
+  this.laughter = "Muhahahaha";
+}
+MadScientist.prototype = {
+  laugh: function () { console.log(this.laughter); }
+}
+
+function Dexter() {
+  MadScientist.call(this, arguments);
+  this.saying = "Omelette du fromage";
+}
+
+Dexter.prototype = _(new MadScientist()).extend({
+  say: function () { console.log(this.saying); }
+});
+
+var boy = new Dexter();
+
+boy instanceof Dexter
+// true
+boy instanceof MadScientist
+// true
+boy instanceof Object
+// true
+                </code></pre>
+          </section>
+
+          <section>
+            <h3>Dual type system</h3>
+            <h4>Object types - prototype II</h4>
+                <pre><code class="javascript" data-trim contenteditable>function MadScientist() {
+  this.laughter = "Muhahahaha";
+}
+MadScientist.prototype = {
+  laugh: function () { console.log(this.laughter); }
+}
+
+function Dexter() {
+  MadScientist.call(this, arguments);
+  this.saying = "Omelette du fromage";
+}
+
+Dexter.prototype = {
+  say: function () { console.log(this.saying); }
+};
+_(Dexter.prototype).extend(MadScientist.prototype);
+
+var boy = new Dexter();
+
+boy instanceof Dexter
+// true
+boy instanceof MadScientist
+// false
+boy instanceof Object
+// true
+                </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <img src="img/madness-this-is-js.jpg" />
+
+              <h3>This language is MADNESS!</h3>
+            </div>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>Type coersion</h4>
+            <pre><code class="javascript" data-trim contenteditable>
+false == 0
+// true
+false == ""
+// true
+[] == false
+// true
+[[], null, undefined, null] == ",,,"
+// true
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>Unexpected standard functions behaviour</h4>
+            <pre><code class="javascript" data-trim contenteditable>
+parseInt("10");
+// 10
+parseInt("010");
+// 8
+parseInt("010", 10);
+// 10
+
+Math.min() &lt; Math.max()
+// false
+            </code></pre>
+            <p class="fragment">
+              For more such gems, visit <a href="http://wtfjs.com/">wtfjs.com</a>
+            </p>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>But you can defend against it in three easy steps</h4>
+            <ol>
+              <li class="fragment">jshint</li>
+              <li class="fragment">jshint</li>
+              <li class="fragment">you guessed it, jshint</li>
+            </ol>
+            <p class="fragment">
+              <small>
+                Seriosuly, it is not optional!
+              </small>
+            </p>
+
+            <aside class="notes">
+              No human is able to write a correct JavaScript code.
+            </aside>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>But you can defend against it in three easy steps</h4>
+            Consider some harmless JavaScript code
+            <pre><code class="javascript" data-trim contenteditable>function print () {
+  var in = document.getElementById("user-range"),
+      text = in.value;
+      range = parseInt(in);
+
+  for(i = 0; i &lt; range; i++) {
+    var text = document.getElementById("user-input-" + i);
+    console.log(text)
+  }
+}
+            </code></pre>
+          </section>
+
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>Nope</h4>
+            <p>23 errors</p>
+            <pre><code class="javascript" data-trim contenteditable>
+line 2, col 3, Missing "use strict" statement.
+line 2, col 7, Expected an identifier and instead saw 'in' (a reserved word).
+line 3, col 14, Expected an identifier and instead saw 'in'.
+line 3, col 16, Expected an operator and instead saw '.'.
+line 3, col 17, Missing semicolon.
+line 3, col 17, Expected an assignment or function call and instead saw an expression.
+line 4, col 24, Expected an identifier and instead saw 'in'.
+line 4, col 26, Missing radix parameter.
+line 7, col 9, Too many var statements.
+line 7, col 14, 'text' is already defined.
+line 8, col 22, Missing semicolon.
+line 2, col 12, 'document' is not defined.
+line 3, col 17, 'value' is not defined.
+line 4, col 7, 'range' is not defined.
+line 6, col 7, 'i' is not defined.
+line 6, col 14, 'i' is not defined.
+line 6, col 18, 'range' is not defined.
+line 6, col 25, 'i' is not defined.
+line 7, col 16, 'document' is not defined.
+line 7, col 56, 'i' is not defined.
+line 8, col 5, 'console' is not defined.
+line 1, col 15, 'print' is defined but never used.
+line 2, col 9, 'in' is defined but never used.
+            </code></pre>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>What will jshint catch?</h4>
+            <p class="fragment">All the madness</p>
+            <ul>
+              <li class="fragment">
+                Missing semicolons, commas, braces<br />
+                <small>You'll be sure that browser will parse the file correctly</small>
+              </li>
+              <li class="fragment">
+                Unwanted type cohersion<br />
+                <small>== instead of ===</small>
+              </li>
+              <li class="fragment">
+                Undefined variables, global scope access<br />
+                <small>Missing vars</small>
+              </li>
+              <li class="fragment">
+                Strange constructs<br />
+                <small>Assingment instead of comparision, new used for side-effects</small>
+              </li>
+              <li class="fragment">
+                <a href="http://www.jshint.com/docs/">Lots and lots of other stuff</a>
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h3>This language is MADNESS!</h3>
+            <h4>Conclusion</h4>
+
+            <p class="fragment">
+              <img src="img/hint-all-the-things.jpg" />
+            </p>
+            <p class="fragment">
+              Seriously, it's the law!
+            </p>
+
+            <aside class="notes">
+              SPACE, SPACE!<br />
+
+              Sidenote - since yesterday all JS files are hinted in MF11 Platform. Except one...
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <img src="img/one-does-not.jpg" />
+              <h3>Refactoring is hard!</h3>
+            </div>
+          </section>
+
+          <section>
+              <h3>Refactoring is hard!</h3>
+              <ul>
+                <li class="fragment">JavaScript is dynamic</li>
+                <li class="fragment">Refactoring problems is inherent property of all dynamic languages</li>
+                <li class="fragment">...and static as well</li>
+                <li class="fragment">Testing is the answer</li>
+              </ul>
+
+              <aside class="notes">
+                In general in any software project, the biggest problem is maintenance. Unit tests help to
+                decrease costs of maintence. <br />
+
+                The should be mandatory for ever software project that you plan to use longer than a week.
+              </aside>
+          </section>
+
+          <section>
+              <h3>Refactoring is hard!</h3>
+              <h4>Unless you have tests</h4>
+              <ul>
+                <li class="fragment">How do you know, you did not break anything?</li>
+                <li class="fragment">Unit testing is a MUST-HAVE</li>
+                <li class="fragment">Component testing is probably won't hurt as well</li>
+              </ul>
+
+              <aside class="notes">
+                <ul>
+                  <li>Dynamicness of JavaScript makes isolated testing a piece of cake</li>
+                  <li>I did presentation of JS unit tests once, so I won't elaborate</li>
+                  <li>E2E testing: I'm torn, it helps to test the JS engine implementation quirks (IE bull****)</li>
+                </ul>
+              </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <h3>Everything is global!</h3>
+              <img src="img/sad-panda.jpg" />
+            </div>
+          </section>
+
+          <section>
+            <h3>Everything is global!</h3>
+
+            <ul>
+              <li class="fragment">
+                Most code utilizes global variables: <br />
+                <code>jQuery, $, _, modernizr, ko</code>
+              </li>
+              <li class="fragment">Except, it does not have to!</li>
+              <li class="fragment">Good solution: <a href="http://requirejs.org/">RequireJS</a> a.k.a. AMD
+              <li class="fragment">Better solution: <a href="http://wiki.commonjs.org/wiki/Modules/1.1">CommonJS modules</a> as seen in NodeJS
+              <li class="fragment">Google <a href="http://lmgtfy.com/?q=HTML5+application+assemblers">HTML5 application assemblers</a> for a start</li>
+            </ul>
+
+            <aside class="notes">
+              <ul>
+                <li>Most of these libraries support module systems if they detect that one is avaliable on page, most of people just don't know/use it</li>
+                <li>
+                  AMD
+                  <ul>
+                    <li>Modules are downloaded and executed on-demand, allowing for the best perfromance in browsers environment</li>
+                    <li>Sucks for large amount of small files</li>
+                  </ul>
+                </li>
+                <li>
+                  CommonJS modules - a boilerplate for the modules and how it suppose to behave. Allows for easy, automated generation
+                  directly from filesystem. Output can be merged, minified and server as single file.
+                </li>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Everything is global!</h3>
+            <h4>Except is doesn't have to be!</h4>
+            Example module boilerplate
+            <pre><code class="javascript" data-trim contenteditable>// file scripts/app/module.js
+define("app/module", ["app/dependency"], function (dependency) {
+  var privateField = "Noone can touch me from outside!";
+
+  function privateMember () {
+    privateField = "I can modify you!";
+  }
+
+  return {
+    publicMember: function () {
+      privateMember();
+      return "I modified something, but you'll never know";
+    }
+  };
+});
+
+var appModule = require("app/module");
+appModule.publicMember();
+            </code></pre>
+
+            <aside class="notes">
+              Non CommonJS compilant... YET!
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <img src="img/die-ie.jpg" alt="Source: http://cdn3.jazjaz.net/wp-content/uploads/2010/03/internetexplorervoodoodoll.jpg" />
+              <h3>Incompatibilities between browsers</h3>
+            </div>
+          </section>
+
+          <section>
+            <h3>Incompatibilities between browsers</h3>
+            <pre><code class="javascript" data-trim contenteditable>
+console.log("Ohai!");
+            </code></pre>
+            <p>
+              <ul>
+                <li class="fragment">Works fine in any modern browser (read: non-IE)
+                <li class="fragment">Works fine on IE if you have developer's tools opened
+                <li class="fragment">Failes misreably if you don't have developer's tools opened
+              </ul>
+            </p>
+
+            <aside class="notes">
+              <p>It's even more tricky, <em>developer's tools</em> need to be open when the page was loaded.</p>
+            </aside>
+          </section>
+
+          <section>
+            <h3>Incompatibilities between browsers</h3>
+            <p>But browser wars are (hopefully) over!</p>
+
+            <p>
+              <a href="http://gs.statcounter.com/#browser_version_partially_combined-ww-monthly-201211-201305-bar"><img src="img/browser-popularity.jpg" alt="Browser popularity 2013" /></a>
+              <small>
+                Now we need just to wait until IE6, 7, 8 and possibly 9 die out
+              </small>
+            </p>
+
+            <aside class="notes">
+              Apples and oranges: Imagine having to develop on all .NET versions since 2.0 + Mono 1.0 and 2.0<br />
+
+              Number of major versions in last 2 years:
+              <ul>
+                <li>Firefox: 16</li>
+                <li>Chrome: 17</li>
+                <li>IE: 2</li>
+                <li>Safari: 2</li>
+              </ul>
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <p>SOLID, inheritance, composition, copuling
+              <img src="img/some-of-these.jpg" />
+              <h3>No classes, no inheritance</h3>
+            </div>
+          </section>
+
+          <section>
+            <h3>No inheritance</h3>
+            <p>
+              But <br />
+              <ul>
+                <li class="fragment">
+                  <a href="http://en.wikipedia.org/wiki/Composition_over_inheritance">Composition over inheritance</a><br />
+                  <small>
+                    Inheritance is the strongest form of copuling.
+                  </small>
+                </li>
+                <li class="fragment">Just get over it and use mixins</li>
+                <li class="fragment">Understand prototype-based types if you really need it</li>
+                <li class="fragment">If you really-really-really can't live without it, use <a href="http://en.wikipedia.org/wiki/Joose_%28framework%29">meta object system</a></li>
+                <li class="fragment">
+                  If you're still not satisfied, try one of the type-checked language compiled to JavaScript<br />
+                  <small>
+                    <a href="http://www.typescriptlang.org/">TypeScript</a>, <a href="http://www.rust-lang.org/">Rust</a> or <a href="http://www.dartlang.org">Dart</a>
+                  </small>
+                </li>
+              </ul>
+            </p>
+
+            <aside class="notes">
+              <ul>
+                <li>Is it really a bad thing? Modern languages prefer traits.</li>
+                <li>Mixins will fullfill 99% of your needs!</li>
+                <li>Prototypes are only necessary in performance-essential parts of the code</li>
+                <li>But you really-really-really don't</li>
+                <li>If you really wan't to be screwed up when debugging your code</li>
+              </ul>
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>I don't like the JavaScript because...</h2>
+            <div class="fragment">
+              <img src="img/linq.jpg" />
+              <h3>No LINQ</h3>
+            </div>
+          </section>
+
+          <section>
+            <h3>No linq</h3>
+            <h4><a href="http://underscorejs.org/">Underscore my friend</a></h4>
+
+            <pre><code class="javascript" data-trim contenteditable>
+var upperNames = _(collection).chain()
+  .where(function (k, i) {
+    return i%2 === 0;
+  })
+  .pluck('name')
+  .map(String.toUpperCase)
+  .value();
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <h2>Meanwhile in JavaScript world</h2>
+          <ul>
+            <li class="fragment"><a href="http://nodejs.org/">Nodejs</a></li>
+            <li class="fragment">HTML5</li>
+            <li class="fragment"><a href="http://www.khronos.org/webgl/">Kronos WebGL</a></li>
+            <li class="fragment"><a href="https://github.com/kripken/emscripten/wiki">emscripten</a></li>
+            <li class="fragment">
+              <a href="http://asmjs.org/">asm.js</a><br />
+              <small>Not all hope is lost!</small>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Useful resources</h2>
+          <ul>
+            <li><a href="http://www.youtube.com/watch?v=PV_cFx29Xz0">Rob Ashton - "Javascript sucks and it doesn't matter"</a></li>
+            <li><a href="http://www.jshint.com/">JS Hint</a></li>
+            <li><a href="http://nodejs.org/">Nodejs</a></li>
+            <li><a href="http://brunch.io/">Brunch</a></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Thanks for your time</h2>
+          <h3 class="fragment">Questions?</h3>
+        </section>
+
+      </div>
+    </div>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+          // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
